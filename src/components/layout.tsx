@@ -1,4 +1,4 @@
-import { cls } from "@/libs/utils";
+import { cls } from "@/libs/client/utils";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -49,7 +49,13 @@ export default function Layout({
       <div className={cls("pt-16", hasTabBar ? "pb-32" : "")}>{children}</div>
       {hasTabBar ? (
         <nav className="w-full max-w-xl bg-white text-gray-800 border-t fixed bottom-0 pb-10 pt-3 px-10 flex justify-between items-center">
-          <Link href="/" className="flex flex-col items-center space-y-2">
+          <Link
+            href="/"
+            className={cls(
+              "flex flex-col items-center space-y-2",
+              router.pathname === "/" ? "text-orange-500 font-semibold" : ""
+            )}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -69,7 +75,12 @@ export default function Layout({
           </Link>
           <Link
             href="/community"
-            className="flex flex-col items-center space-y-2"
+            className={cls(
+              "flex flex-col items-center space-y-2",
+              router.pathname.includes("/community")
+                ? "text-orange-500 font-semibold"
+                : ""
+            )}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +99,15 @@ export default function Layout({
 
             <span>동네생활</span>
           </Link>
-          <Link href="/chats" className="flex flex-col items-center space-y-2">
+          <Link
+            href="/chats"
+            className={cls(
+              "flex flex-col items-center space-y-2",
+              router.pathname.includes("/chats")
+                ? "text-orange-500 font-semibold"
+                : ""
+            )}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -108,7 +127,12 @@ export default function Layout({
           </Link>
           <Link
             href="/streams"
-            className="flex flex-col items-center space-y-2"
+            className={cls(
+              "flex flex-col items-center space-y-2",
+              router.pathname.includes("/streams")
+                ? "text-orange-500 font-semibold"
+                : ""
+            )}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -128,7 +152,12 @@ export default function Layout({
           </Link>
           <Link
             href="/profile"
-            className="flex flex-col items-center space-y-2"
+            className={cls(
+              "flex flex-col items-center space-y-2",
+              router.pathname.includes("/profile")
+                ? "text-orange-500 font-semibold"
+                : ""
+            )}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
