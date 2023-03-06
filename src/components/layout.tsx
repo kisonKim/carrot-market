@@ -48,7 +48,7 @@ export default function Layout({
       </div>
       <div className={cls("pt-16", hasTabBar ? "pb-32" : "")}>{children}</div>
       {hasTabBar ? (
-        <nav className="w-full max-w-xl bg-white text-gray-800 border-t fixed bottom-0 pb-10 pt-3 px-10 flex justify-between items-center">
+        <nav className="w-full max-w-xl bg-white text-gray-800 border-t fixed bottom-0 py-3 px-10 flex justify-between items-center">
           <Link
             href="/"
             className={cls(

@@ -1,7 +1,6 @@
 import client from "@/libs/server/client";
 import withHandler, { ResponseType } from "@/libs/server/withHandler";
 import { withApiSession } from "@/libs/server/withSession";
-import { withIronSessionApiRoute } from "iron-session/next";
 import { NextApiRequest, NextApiResponse } from "next";
 
 declare module "iron-session" {
@@ -15,25 +14,23 @@ async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) {
-  console.log(req.session.user);
+  const {
+    session: { user },
+  } = req;
 
-  const profile = await client.user.findUnique({
+  const reviews = await client.review.findMany({
     where: {
-      id: req.session.user?.id,
+      createdForId: user?.id,
+    },
+    include: {
+      createdBy: { select: { id: true, name: true, avatar: true } },
     },
   });
 
-  if (profile) {
-    return res.status(200).json({
-      ok: true,
-      profile,
-    });
-  }
-
-  return res.status(404).json({
-    ok: false,
-    message: "User not found.",
+  return res.status(200).json({
+    ok: true,
+    reviews,
   });
 }
 
-export default withApiSession(withHandler("GET", handler));
+export default withApiSession(withHandler({ methods: ["GET"], handler }));

@@ -1,18 +1,54 @@
+import Button from "@/components/button";
+import Layout from "@/components/layout";
+import TextArea from "@/components/textarea";
+import useCoords from "@/libs/client/useCoords";
+import useMutation from "@/libs/client/useMutation";
+import { Post } from "@prisma/client";
 import { NextPage } from "next";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { FieldErrors, useForm } from "react-hook-form";
 
+interface CommWriteForm {
+  question: string;
+}
+
+interface WriteResponse {
+  ok: boolean;
+  post: Post;
+}
 const Write: NextPage = () => {
+  const { latitude, longitude } = useCoords();
+  const router = useRouter();
+  const { register, watch, handleSubmit, reset } = useForm<CommWriteForm>();
+  const [post, { loading, data }] = useMutation<WriteResponse>("/api/posts");
+  const onValid = (data: CommWriteForm) => {
+    if (loading) return;
+    post({ ...data, latitude, longitude });
+  };
+  const onInValid = (error: FieldErrors) => {};
+
+  useEffect(() => {
+    if (data && data.ok) {
+      router.replace(`/community/${data.post.id}`);
+    }
+  }, [data, router]);
   return (
-    <div className="px-4 py-10">
-      <textarea
-        id="description"
-        className="mt-1 shadow-sm w-full focus:ring-orange-500 focus:outline-none rounded-md border-gray-300 focus:border-orange-500"
-        placeholder="Ask a question!"
-        rows={4}
-      />
-      <button className="w-full mt-2 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none  focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-        Submit
-      </button>
-    </div>
+    <Layout canGoBack title="Write Post">
+      <form
+        className="p-4 space-y-4"
+        onSubmit={handleSubmit(onValid, onInValid)}
+      >
+        <TextArea
+          name="question"
+          register={register("question", { required: true, minLength: 5 })}
+          placeholder="Ask a question!"
+          rows={4}
+          required
+        />
+        <Button text={loading ? "Loading..." : "Submit"} />
+      </form>
+    </Layout>
   );
 };
 
