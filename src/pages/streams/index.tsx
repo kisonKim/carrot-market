@@ -1,31 +1,47 @@
 import FloatingButton from "@/components/floating-button";
 import Layout from "@/components/layout";
+import { useObserver } from "@/libs/client/useObserver";
 import { Stream } from "@prisma/client";
 import { NextPage } from "next";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
 
 interface StreamsResponse {
   ok: boolean;
   streams: Stream[];
+  end?: boolean;
 }
 const Streams: NextPage = () => {
-  const { data, error } = useSWR<StreamsResponse>("/api/streams");
+  const [page, setPage] = useState(1);
+  const [streams, setStreams] = useState<Stream[]>([]);
+  const { data, mutate } = useSWR<StreamsResponse>(`/api/streams?page=${page}`);
+
+  useEffect(() => {
+    if (!data?.streams && !data?.streams.length) return;
+    setStreams(streams.concat(data.streams));
+  }, [data]);
+
+  const onIntersect = (entry: any, observer: any) => {
+    setPage((prev) => prev + 1);
+  };
+  const infRef = useObserver(onIntersect, 0.1);
 
   return (
     <Layout title="라이브" hasTabBar>
       <div className="divide-y-[1.5px] space-y-4">
-        {data?.streams.map((stream) => (
-          <Link
-            className="pt-4 block  px-4"
-            key={stream.id}
-            href={`/streams/${stream.id}`}
-          >
-            <div className="w-full rounded-md shadow-sm bg-slate-300 aspect-video" />
-            <h1 className="text-2xl mt-2 font-bold text-gray-900">
-              {stream.name}
-            </h1>
-          </Link>
+        {streams.map((stream, idx) => (
+          <div key={stream.id}>
+            <Link className="pt-4 block px-4" href={`/streams/${stream.id}`}>
+              <div className="w-full rounded-md shadow-sm bg-slate-300 aspect-video" />
+              <h1 className="text-2xl mt-2 font-bold text-gray-900">
+                {stream.name}
+              </h1>
+            </Link>
+            {idx === streams.length - 1 ? (
+              <div ref={!data?.end ? infRef : null} />
+            ) : null}
+          </div>
         ))}
         <FloatingButton href="/streams/create">
           <svg

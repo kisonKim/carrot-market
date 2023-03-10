@@ -15,7 +15,13 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
   if (req.method === "GET") {
-    const streams = await client.stream.findMany();
+    const { page } = req.query;
+    const offset = 10;
+
+    const streams = await client.stream.findMany({
+      take: offset,
+      skip: (Number(page) - 1) * offset,
+    });
 
     if (!streams) {
       return res.status(404).json({
@@ -27,6 +33,7 @@ async function handler(
     return res.status(200).json({
       ok: true,
       streams,
+      ...(streams.length === 0 ? { end: true } : {}),
     });
   }
   if (req.method === "POST") {
